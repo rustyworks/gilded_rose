@@ -37,51 +37,37 @@ impl GildedRose {
     pub fn update_quality(&mut self) {
         for i in 0..self.items.len() {
             let mut item = &mut self.items[i];
-            // Sulfuras case
+
             if item.name == SULFURAS {
                 continue;
             }
 
             item.sell_in = item.sell_in - 1;
 
-            // Increasing quality case
             if item.name == AGED_BRIE || item.name == BACKSTAGE_PASS {
-                if item.quality < 50 {
-                    update_quality(item, 1);
+                update_quality(item, 1);
 
-                    if item.name == BACKSTAGE_PASS {
-                        if item.sell_in < 11 {
-                            if item.quality < 50 {
-                                update_quality(item, 1);
-                            }
-                        }
+                if item.name == BACKSTAGE_PASS {
+                    if item.sell_in < 11 {
+                        update_quality(item, 1);
+                    }
 
-                        if item.sell_in < 6 {
-                            if item.quality < 50 {
-                                update_quality(item, 1);
-                            }
-                        }
+                    if item.sell_in < 6 {
+                        update_quality(item, 1);
                     }
                 }
             } else {
-                if item.quality > 0 {
-                    update_quality(item, -1);
-                }
+                update_quality(item, -1);
             }
 
-            // caping quality case
             if item.sell_in < 0 {
                 if item.name == AGED_BRIE {
-                    if item.quality < 50 {
-                        update_quality(item, 1);
-                    }
+                    update_quality(item, 1);
                 } else {
                     if item.name == BACKSTAGE_PASS {
                         update_quality(item, -item.quality);
                     } else {
-                        if item.quality > 0 {
-                            update_quality(item, -1);
-                        }
+                        update_quality(item, -1);
                     }
                 }
             }
@@ -91,6 +77,12 @@ impl GildedRose {
 
 pub fn update_quality(item: &mut Item, number_of_quality: i32) {
     item.quality = item.quality + number_of_quality;
+    if item.quality > 50 {
+        item.quality = 50;
+    }
+    if item.quality < 0 {
+        item.quality = 0;
+    }
 }
 
 #[cfg(test)]
