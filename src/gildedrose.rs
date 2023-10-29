@@ -38,26 +38,25 @@ impl GildedRose {
         for i in 0..self.items.len() {
             let mut item = &mut self.items[i];
 
-            if item.name == SULFURAS {
-                continue;
-            }
+            match &item.name[..] {
+                SULFURAS => { },
+                AGED_BRIE | BACKSTAGE_PASS => {
+                    update_sell_in(item);
+                    update_quality(item, 1);
+                    if item.name == BACKSTAGE_PASS {
+                        if item.sell_in < 11 {
+                            update_quality(item, 1);
+                        }
 
-            update_sell_in(item);
-
-            if item.name == AGED_BRIE || item.name == BACKSTAGE_PASS {
-                update_quality(item, 1);
-
-                if item.name == BACKSTAGE_PASS {
-                    if item.sell_in < 11 {
-                        update_quality(item, 1);
+                        if item.sell_in < 6 {
+                            update_quality(item, 1);
+                        }
                     }
-
-                    if item.sell_in < 6 {
-                        update_quality(item, 1);
-                    }
+                },
+                _ => {
+                    update_sell_in(item);
+                    update_quality(item, -1);
                 }
-            } else {
-                update_quality(item, -1);
             }
 
             if item.sell_in < 0 {
