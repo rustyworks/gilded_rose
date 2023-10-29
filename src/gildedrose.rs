@@ -47,19 +47,8 @@ impl GildedRose {
                 },
                 _ => {
                     update_sell_in(item);
-                    update_quality(item, -1);
-                }
-            }
-
-            if item.sell_in < 0 {
-                if item.name == AGED_BRIE {
-                    update_quality(item, 1);
-                } else {
-                    if item.name == BACKSTAGE_PASS {
-                        update_quality(item, -item.quality);
-                    } else {
-                        update_quality(item, -1);
-                    }
+                    let factor = get_update_factor(item);
+                    update_quality(item, factor);
                 }
             }
         }
@@ -82,17 +71,33 @@ pub fn update_sell_in(item: &mut Item) {
 
 pub fn get_update_factor(item: &mut Item) -> i32 {
     match &item.name[..] {
-        AGED_BRIE => 1,
-        BACKSTAGE_PASS => {
-            if item.sell_in >= 11 {
+        AGED_BRIE => {
+            if item.sell_in >= 0 {
                 1
-            } else if item.sell_in >=6 {
-                2
             } else {
-                3
+                2
             }
         },
-        _ =>  0,
+        BACKSTAGE_PASS => {
+            if item.sell_in <= 0 {
+                -item.quality
+            } else {
+                if item.sell_in >= 11 {
+                    1
+                } else if item.sell_in >=6 {
+                    2
+                } else {
+                    3
+                }
+            }
+        },
+        _ =>  {
+            if item.sell_in >= 0 {
+                -1
+            } else {
+                -2
+            }
+        },
     }
 }
 
