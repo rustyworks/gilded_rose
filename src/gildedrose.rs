@@ -42,7 +42,7 @@ impl GildedRose {
                 continue;
             }
 
-            item.sell_in = item.sell_in - 1;
+            update_sell_in(item);
 
             if item.name == AGED_BRIE || item.name == BACKSTAGE_PASS {
                 update_quality(item, 1);
@@ -83,6 +83,10 @@ pub fn update_quality(item: &mut Item, number_of_quality: i32) {
     if item.quality < 0 {
         item.quality = 0;
     }
+}
+
+pub fn update_sell_in(item: &mut Item) {
+    item.sell_in = item.sell_in - 1;
 }
 
 #[cfg(test)]
