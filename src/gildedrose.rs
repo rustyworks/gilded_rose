@@ -36,22 +36,14 @@ impl GildedRose {
 
     pub fn update_quality(&mut self) {
         for i in 0..self.items.len() {
-            let mut item = &mut self.items[i];
+            let item = &mut self.items[i];
 
             match &item.name[..] {
                 SULFURAS => { },
                 AGED_BRIE | BACKSTAGE_PASS => {
                     update_sell_in(item);
-                    update_quality(item, 1);
-                    if item.name == BACKSTAGE_PASS {
-                        if item.sell_in < 11 {
-                            update_quality(item, 1);
-                        }
-
-                        if item.sell_in < 6 {
-                            update_quality(item, 1);
-                        }
-                    }
+                    let factor = get_update_factor(item);
+                    update_quality(item, factor);
                 },
                 _ => {
                     update_sell_in(item);
@@ -86,6 +78,22 @@ pub fn update_quality(item: &mut Item, number_of_quality: i32) {
 
 pub fn update_sell_in(item: &mut Item) {
     item.sell_in = item.sell_in - 1;
+}
+
+pub fn get_update_factor(item: &mut Item) -> i32 {
+    match &item.name[..] {
+        AGED_BRIE => 1,
+        BACKSTAGE_PASS => {
+            if item.sell_in >= 11 {
+                1
+            } else if item.sell_in >=6 {
+                2
+            } else {
+                3
+            }
+        },
+        _ =>  0,
+    }
 }
 
 #[cfg(test)]
