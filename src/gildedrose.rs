@@ -21,13 +21,13 @@ impl Display for Item {
     }
 }
 
-pub struct GildedRose {
-    pub items: Vec<Item>,
-}
-
 const AGED_BRIE: &str = "Aged Brie";
 const BACKSTAGE_PASS: &str = "Backstage passes to a TAFKAL80ETC concert";
 const SULFURAS: &str = "Sulfuras, Hand of Ragnaros";
+
+pub struct GildedRose {
+    pub items: Vec<Item>,
+}
 
 impl GildedRose {
     pub fn new(items: Vec<Item>) -> GildedRose {
@@ -36,56 +36,61 @@ impl GildedRose {
 
     pub fn update_quality(&mut self) {
         for i in 0..self.items.len() {
+            let mut item = &mut self.items[i];
             // Sulfuras case
-            if self.items[i].name == SULFURAS {
+            if item.name == SULFURAS {
                 continue;
             }
 
-            // Increasing quality case
-            if self.items[i].name == AGED_BRIE || self.items[i].name == BACKSTAGE_PASS {
-                if self.items[i].quality < 50 {
-                    self.items[i].quality = self.items[i].quality + 1;
+            item.sell_in = item.sell_in - 1;
 
-                    if self.items[i].name == BACKSTAGE_PASS {
-                        if self.items[i].sell_in < 11 {
-                            if self.items[i].quality < 50 {
-                                self.items[i].quality = self.items[i].quality + 1;
+            // Increasing quality case
+            if item.name == AGED_BRIE || item.name == BACKSTAGE_PASS {
+                if item.quality < 50 {
+                    update_quality(item, 1);
+
+                    if item.name == BACKSTAGE_PASS {
+                        if item.sell_in < 11 {
+                            if item.quality < 50 {
+                                update_quality(item, 1);
                             }
                         }
 
-                        if self.items[i].sell_in < 6 {
-                            if self.items[i].quality < 50 {
-                                self.items[i].quality = self.items[i].quality + 1;
+                        if item.sell_in < 6 {
+                            if item.quality < 50 {
+                                update_quality(item, 1);
                             }
                         }
                     }
                 }
             } else {
-                if self.items[i].quality > 0 {
-                    self.items[i].quality = self.items[i].quality - 1;
+                if item.quality > 0 {
+                    update_quality(item, -1);
                 }
             }
 
-            self.items[i].sell_in = self.items[i].sell_in - 1;
-
             // caping quality case
-            if self.items[i].sell_in < 0 {
-                if self.items[i].name == AGED_BRIE {
-                    if self.items[i].quality < 50 {
-                        self.items[i].quality = self.items[i].quality + 1;
+            if item.sell_in < 0 {
+                if item.name == AGED_BRIE {
+                    if item.quality < 50 {
+                        update_quality(item, 1);
                     }
                 } else {
-                    if self.items[i].name == BACKSTAGE_PASS {
-                        self.items[i].quality = self.items[i].quality - self.items[i].quality;
+                    if item.name == BACKSTAGE_PASS {
+                        update_quality(item, -item.quality);
                     } else {
-                        if self.items[i].quality > 0 {
-                            self.items[i].quality = self.items[i].quality - 1;
+                        if item.quality > 0 {
+                            update_quality(item, -1);
                         }
                     }
                 }
             }
         }
     }
+}
+
+pub fn update_quality(item: &mut Item, number_of_quality: i32) {
+    item.quality = item.quality + number_of_quality;
 }
 
 #[cfg(test)]
@@ -198,3 +203,4 @@ mod tests {
         assert_eq!(16, rose.items[1].quality, "Normal item quality always decreasing by 4, after due date reach.");
     }
 }
+
