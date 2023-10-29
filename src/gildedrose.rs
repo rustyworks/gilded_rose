@@ -21,6 +21,41 @@ impl Display for Item {
     }
 }
 
+trait Expiry {
+    fn get_expiry_factor(&mut self) -> i32;
+}
+
+impl Expiry for Item {
+    fn get_expiry_factor(&mut self) -> i32 {
+        let base = match &self.name[..] {
+            AGED_BRIE | BACKSTAGE_PASS => 1,
+            _ => -1,
+        };
+
+        let factor = match &self.name[..] {
+            BACKSTAGE_PASS => {
+                if self.sell_in > 10 {
+                    base
+                } else if self.sell_in > 5 {
+                    base * 2
+                } else if self.sell_in > 0 {
+                    base * 3
+                } else {
+                    -self.quality
+                }
+            },
+            _ => {
+                if self.sell_in < 0 {
+                    base * 2
+                } else {
+                    base
+                }
+            }
+        };
+        factor
+    }
+}
+
 const AGED_BRIE: &str = "Aged Brie";
 const BACKSTAGE_PASS: &str = "Backstage passes to a TAFKAL80ETC concert";
 const SULFURAS: &str = "Sulfuras, Hand of Ragnaros";
@@ -42,12 +77,12 @@ impl GildedRose {
                 SULFURAS => { },
                 AGED_BRIE | BACKSTAGE_PASS => {
                     update_sell_in(item);
-                    let factor = get_update_factor(item);
+                    let factor = item.get_expiry_factor();
                     update_quality(item, factor);
                 },
                 _ => {
                     update_sell_in(item);
-                    let factor = get_update_factor(item);
+                    let factor = item.get_expiry_factor();
                     update_quality(item, factor);
                 }
             }
@@ -67,38 +102,6 @@ pub fn update_quality(item: &mut Item, number_of_quality: i32) {
 
 pub fn update_sell_in(item: &mut Item) {
     item.sell_in = item.sell_in - 1;
-}
-
-pub fn get_update_factor(item: &mut Item) -> i32 {
-    match &item.name[..] {
-        AGED_BRIE => {
-            if item.sell_in >= 0 {
-                1
-            } else {
-                2
-            }
-        },
-        BACKSTAGE_PASS => {
-            if item.sell_in <= 0 {
-                -item.quality
-            } else {
-                if item.sell_in >= 11 {
-                    1
-                } else if item.sell_in >=6 {
-                    2
-                } else {
-                    3
-                }
-            }
-        },
-        _ =>  {
-            if item.sell_in >= 0 {
-                -1
-            } else {
-                -2
-            }
-        },
-    }
 }
 
 #[cfg(test)]
