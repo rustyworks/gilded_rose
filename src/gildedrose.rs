@@ -29,6 +29,7 @@ impl Expiry for Item {
     fn get_expiry_factor(&mut self) -> i32 {
         let base = match &self.name[..] {
             AGED_BRIE | BACKSTAGE_PASS => 1,
+            CONJURED_ITEM => -2,
             _ => -1,
         };
 
@@ -59,6 +60,7 @@ impl Expiry for Item {
 const AGED_BRIE: &str = "Aged Brie";
 const BACKSTAGE_PASS: &str = "Backstage passes to a TAFKAL80ETC concert";
 const SULFURAS: &str = "Sulfuras, Hand of Ragnaros";
+const CONJURED_ITEM: &str = "Conjured Mana Cake";
 
 pub struct GildedRose {
     pub items: Vec<Item>,
@@ -200,18 +202,17 @@ mod tests {
         assert_eq!(-1, rose.items[1].sell_in, "sell_in can be negative if due date reached.");
     }
 
-    #[ignore]
     #[test]
     pub fn conjured_item() {
-        let conjured_item = Item::new("Conjured Mana Cake", 10, 20);
-        let expired_conjured_item = Item::new("Conjured Mana Cake", 0, 20);
+        let conjured_item = Item::new(CONJURED_ITEM, 10, 20);
+        let expired_conjured_item = Item::new(CONJURED_ITEM, 0, 20);
         let items = vec![conjured_item, expired_conjured_item];
         let mut rose = GildedRose::new(items);
 
         rose.update_quality();
 
         assert_eq!(18, rose.items[0].quality, "Conjured item quality always decreasing by 2, every day passed.");
-        assert_eq!(16, rose.items[1].quality, "Normal item quality always decreasing by 4, after due date reach.");
+        assert_eq!(16, rose.items[1].quality, "Conjured item quality always decreasing by 4, after due date reach.");
     }
 }
 
