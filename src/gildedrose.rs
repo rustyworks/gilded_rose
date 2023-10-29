@@ -36,13 +36,13 @@ impl GildedRose {
 
     pub fn update_quality(&mut self) {
         for i in 0..self.items.len() {
-            if self.items[i].name != AGED_BRIE && self.items[i].name != BACKSTAGE_PASS {
-                if self.items[i].quality > 0 {
-                    if self.items[i].name != SULFURAS {
-                        self.items[i].quality = self.items[i].quality - 1;
-                    }
-                }
-            } else {
+            // Sulfuras case
+            if self.items[i].name == SULFURAS {
+                continue;
+            }
+
+            // Increasing quality case
+            if self.items[i].name == AGED_BRIE || self.items[i].name == BACKSTAGE_PASS {
                 if self.items[i].quality < 50 {
                     self.items[i].quality = self.items[i].quality + 1;
 
@@ -60,26 +60,27 @@ impl GildedRose {
                         }
                     }
                 }
+            } else {
+                if self.items[i].quality > 0 {
+                    self.items[i].quality = self.items[i].quality - 1;
+                }
             }
 
-            if self.items[i].name != SULFURAS {
-                self.items[i].sell_in = self.items[i].sell_in - 1;
-            }
+            self.items[i].sell_in = self.items[i].sell_in - 1;
 
+            // caping quality case
             if self.items[i].sell_in < 0 {
-                if self.items[i].name != AGED_BRIE {
-                    if self.items[i].name != BACKSTAGE_PASS {
-                        if self.items[i].quality > 0 {
-                            if self.items[i].name != SULFURAS {
-                                self.items[i].quality = self.items[i].quality - 1;
-                            }
-                        }
-                    } else {
-                        self.items[i].quality = self.items[i].quality - self.items[i].quality;
-                    }
-                } else {
+                if self.items[i].name == AGED_BRIE {
                     if self.items[i].quality < 50 {
                         self.items[i].quality = self.items[i].quality + 1;
+                    }
+                } else {
+                    if self.items[i].name == BACKSTAGE_PASS {
+                        self.items[i].quality = self.items[i].quality - self.items[i].quality;
+                    } else {
+                        if self.items[i].quality > 0 {
+                            self.items[i].quality = self.items[i].quality - 1;
+                        }
                     }
                 }
             }
