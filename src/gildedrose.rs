@@ -25,6 +25,10 @@ pub struct GildedRose {
     pub items: Vec<Item>,
 }
 
+const AGED_BRIE: &str = "Aged Brie";
+const BACKSTAGE_PASS: &str = "Backstage passes to a TAFKAL80ETC concert";
+const SULFURAS: &str = "Sulfuras, Hand of Ragnaros";
+
 impl GildedRose {
     pub fn new(items: Vec<Item>) -> GildedRose {
         GildedRose { items }
@@ -32,10 +36,9 @@ impl GildedRose {
 
     pub fn update_quality(&mut self) {
         for i in 0..self.items.len() {
-            if self.items[i].name != "Aged Brie" && self.items[i].name != "Backstage passes to a TAFKAL80ETC concert"
-            {
+            if self.items[i].name != AGED_BRIE && self.items[i].name != BACKSTAGE_PASS {
                 if self.items[i].quality > 0 {
-                    if self.items[i].name != "Sulfuras, Hand of Ragnaros" {
+                    if self.items[i].name != SULFURAS {
                         self.items[i].quality = self.items[i].quality - 1;
                     }
                 }
@@ -43,7 +46,7 @@ impl GildedRose {
                 if self.items[i].quality < 50 {
                     self.items[i].quality = self.items[i].quality + 1;
 
-                    if self.items[i].name == "Backstage passes to a TAFKAL80ETC concert" {
+                    if self.items[i].name == BACKSTAGE_PASS {
                         if self.items[i].sell_in < 11 {
                             if self.items[i].quality < 50 {
                                 self.items[i].quality = self.items[i].quality + 1;
@@ -59,15 +62,15 @@ impl GildedRose {
                 }
             }
 
-            if self.items[i].name != "Sulfuras, Hand of Ragnaros" {
+            if self.items[i].name != SULFURAS {
                 self.items[i].sell_in = self.items[i].sell_in - 1;
             }
 
             if self.items[i].sell_in < 0 {
-                if self.items[i].name != "Aged Brie" {
-                    if self.items[i].name != "Backstage passes to a TAFKAL80ETC concert" {
+                if self.items[i].name != AGED_BRIE {
+                    if self.items[i].name != BACKSTAGE_PASS {
                         if self.items[i].quality > 0 {
-                            if self.items[i].name != "Sulfuras, Hand of Ragnaros" {
+                            if self.items[i].name != SULFURAS {
                                 self.items[i].quality = self.items[i].quality - 1;
                             }
                         }
@@ -86,7 +89,7 @@ impl GildedRose {
 
 #[cfg(test)]
 mod tests {
-    use super::{GildedRose, Item};
+    use super::*;
 
     #[test]
     pub fn normal_item_quality_check() {
@@ -103,8 +106,8 @@ mod tests {
 
     #[test]
     pub fn aged_brie_quality_check() {
-        let normal_aged_brie = Item::new("Aged Brie", 10, 20);
-        let expired_aged_brie = Item::new("Aged Brie", 0, 20);
+        let normal_aged_brie = Item::new(AGED_BRIE, 10, 20);
+        let expired_aged_brie = Item::new(AGED_BRIE, 0, 20);
         let items = vec![normal_aged_brie, expired_aged_brie];
         let mut rose = GildedRose::new(items);
 
@@ -116,7 +119,7 @@ mod tests {
 
     #[test]
     pub fn sulfuras_never_sold_never_decrease_in_quality() {
-        let items = vec![Item::new("Sulfuras, Hand of Ragnaros", 10, 50)];
+        let items = vec![Item::new(SULFURAS, 10, 50)];
         let mut rose = GildedRose::new(items);
 
         rose.update_quality();
@@ -127,12 +130,12 @@ mod tests {
 
     #[test]
     pub fn backstage_pass_quality_check() {
-        let backstage_pass_with_gt_10_days_sell_in = Item::new("Backstage passes to a TAFKAL80ETC concert", 15, 20);
-        let backstage_pass_with_eq_10_days_sell_in = Item::new("Backstage passes to a TAFKAL80ETC concert", 10, 20);
-        let backstage_pass_with_lt_10_days_gte_5_days_sell_in = Item::new("Backstage passes to a TAFKAL80ETC concert", 9, 20);
-        let backstage_pass_with_eq_5_days_sell_in = Item::new("Backstage passes to a TAFKAL80ETC concert", 5, 20);
-        let backstage_pass_with_lt_5_days_gt_1_days_sell_in = Item::new("Backstage passes to a TAFKAL80ETC concert", 3, 20);
-        let backstage_pass_with_0_day_sell_in = Item::new("Backstage passes to a TAFKAL80ETC concert", 0, 20);
+        let backstage_pass_with_gt_10_days_sell_in = Item::new(BACKSTAGE_PASS, 15, 20);
+        let backstage_pass_with_eq_10_days_sell_in = Item::new(BACKSTAGE_PASS, 10, 20);
+        let backstage_pass_with_lt_10_days_gte_5_days_sell_in = Item::new(BACKSTAGE_PASS, 9, 20);
+        let backstage_pass_with_eq_5_days_sell_in = Item::new(BACKSTAGE_PASS, 5, 20);
+        let backstage_pass_with_lt_5_days_gt_1_days_sell_in = Item::new(BACKSTAGE_PASS, 3, 20);
+        let backstage_pass_with_0_day_sell_in = Item::new(BACKSTAGE_PASS, 0, 20);
 
         let items = vec![
             backstage_pass_with_gt_10_days_sell_in,
@@ -156,7 +159,7 @@ mod tests {
 
     #[test]
     pub fn quality_limit_check() {
-        let normal_aged_brie = Item::new("Aged Brie", 10, 50);
+        let normal_aged_brie = Item::new(AGED_BRIE, 10, 50);
         let normal_item_with_0_quality = Item::new("Dexterity Vest", 10, 0);
         let items = vec![normal_aged_brie, normal_item_with_0_quality];
         let mut rose = GildedRose::new(items);
